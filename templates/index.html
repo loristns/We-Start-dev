@@ -1,0 +1,317 @@
+<html>
+	<head>
+		<title>We-Start</title>
+        {% if toast: %}
+			<script>location.reload();</script>
+		{% endif %}
+		<meta charset="UTF-8">
+		<link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='materialize/css/materialize.min.css') }}"  media="screen,projection"/>
+		<link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.ico') }}" />
+		<!--[if IE]><link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}" /><![endif]-->
+		<style>
+			body {
+				background-color: #F1F1F1;
+			}
+            .iframe-responsive-wrapper {
+				position: relative;
+			}
+			.iframe-responsive-wrapper .iframe-ratio {
+				display: block;
+				width: 100%;
+				height: auto;
+			}
+			.iframe-responsive-wrapper iframe {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 300px;
+			}
+			.card{
+				height: 450px;
+			}
+			.card .card-content {
+				height: 390px;
+			}
+			.parallax-container {
+				height: 350px;
+			}
+		</style>
+	</head>
+	<body>
+		<script src="{{ url_for('static', filename='jquery-2.1.4.min.js') }}"></script>
+        <script src="{{ url_for('static', filename='rss/jquery.zrssfeed.min.js') }}"></script>
+		<script type="text/javascript" src="{{ url_for('static', filename='materialize/js/materialize.min.js') }}"></script>
+		<div class="fixed-action-btn" style="bottom: 45px; right: 24px;">
+			<a  href="https://github.com/the-new-sky/We-Start-dev/issues" class="btn-floating btn-large waves-effect waves-light red">
+				<i class="large mdi-action-bug-report"></i>
+			</a>
+		</div>
+        <ul id="side-world" class="side-nav">
+            <li class="center-align">
+                <img style="height: 100px" src="{{ url_for('static', filename='images/little-logo.png') }}"/>
+                <p class="flow-text">Bienvenue {{ pseudo }}</p>
+            </li>
+            <li>
+                <a href="/setting" class="flow-text">Vos paramètres</a>
+            </li>
+            <li>
+                <a onclick="$('#widget').openModal();" class="flow-text">Ajouter un widget</a>
+            </li>
+            <li>
+                <a onclick="$('#sm-widget').openModal();" class="flow-text">Ajouter un widget intelligent</a>
+            </li>
+            <li class="center-align">
+                <p class="flow-text">Accès rapide</p>
+            </li>
+            {% for rctitle, rclink in widgetlist: %}
+                <li>
+                    <a href="{{ rclink }}" class="flow-text">{{ rctitle }}</a>
+                </li>
+            {% endfor %}
+            <li class="center-align">
+                <p class="flow-text">Dernières recherches</p>
+            </li>
+            {% for valuelist in story %}
+                <li>
+                    <a class="flow-text" href="/search?q={{ valuelist }}"> {{ valuelist }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+        <div id="widget" class="modal">
+            <form class="widget_form" action="/widget/add-widget" method="POST">
+                <div class="modal-content">
+                    <h3>Ajouter un widget</h3>
+                    <p class="flow-text">Vous pouvez créer un Widget en indiquant un titre et son adresse URL, le site web
+                        sera alors épinglé à votre page d'accueil. Nous vous recommandons d'utiliser de préférence,
+                        des sites responsives ou en version mobile.</p>
+                    <div class="input-field">
+                        <i class="mdi-av-subtitles prefix"></i>
+                        <input id="send1" name="title" type="text" class="validate"/>
+                            <label for="send1">Entrez le titre de votre Widget</label>
+                    </div>
+                    <div class="input-field">
+                        <i class="mdi-social-public prefix"></i>
+                        <input id="adress1" name="link" type="url" class="validate">
+                            <label for="adress1">Entrez l'URL de votre Widget</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class=" modal-action modal-close waves-effect waves-green btn-flat" type="submit">Ajouter</button>
+                </div>
+            </form>
+        </div>
+        <script>
+            $('.widget_form').submit(function() {
+                if ($.trim($("#send1").val()) === "" || $.trim($("#adress1").val()) === "") {
+                    alert('Vous devez remplir entièrement le formulaire');
+                    return false;
+                }
+            });
+        </script>
+        <div id="sm-widget" class="modal">
+            <form class="sm-widget_form" action="/widget/add-sm-widget" method="POST">
+                <div class="modal-content">
+                    <h3>Ajouter un widget intelligent</h3>
+                    <p class="flow-text">Mieux qu'un Widget, avec un Widget intelligent, l'interface du site s'adapte
+                        automatiquement pour vous afficher l'essentiel. Seuls certains sites sont supportés,
+                        vérifiez que votre site web est compatible <a href="https://noembed.com/#supported-sites">ici</a>.</p>
+                    <div class="input-field">
+                        <i class="mdi-av-subtitles prefix"></i>
+                        <input id="send" name="title" type="text" class="validate"/>
+                            <label for="send">Entrez le titre de votre Widget</label>
+                    </div>
+                    <div class="input-field">
+                        <i class="mdi-social-public prefix"></i>
+                        <input id="adress" name="link" type="url" class="validate">
+                            <label for="adress">Entrez l'URL de votre Widget</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class=" modal-action modal-close waves-effect waves-green btn-flat" type="submit">Ajouter</button>
+                </div>
+            </form>
+        </div>
+        <script>
+            $('.sm-widget_form').submit(function() {
+                if ($.trim($("#send").val()) === "" || $.trim($("#adress").val()) === "") {
+                    alert('Vous devez remplir entièrement le formulaire');
+                    return false;
+                }
+            });
+        </script>
+        <div class="section grey lighten-4" id="section-nav">
+            <a href="#" data-activates="side-world" class="button-collapse">
+                <i class="mdi-navigation-menu black-text medium"></i>
+            </a>
+            <div class="row">
+                <div class="col l4 m8 s12 offset-m2 offset-l4">
+                    <center>
+                        <img height="50%" width="50%" class="responsive-img" style="pointer-events: none; border-radius: 10px;" src="{{ url_for('static', filename='images/Mercurius.png') }}"/>
+                    </center>
+                    <form class="input-field" action="/search" id="search-form" method="GET">
+                        <input id="icon_prefix" name="q" type="text" list="suggestions" class="validate"/>
+                            <label for="icon_prefix">Rechercher un site web, une personne ...</label>
+                            <datalist id="suggestions">
+                                {% for valuelist in story %}
+                                    <option value="{{ valuelist }}">
+                                {% endfor %}
+                            </datalist>
+                        <div class="row center-align">
+                            <div class="col s6">
+                                <button class="btn-floating waves-effect blue waves-light" type="submit">
+                                    <i class="mdi-action-search"></i>
+                                </button>
+                            </div>
+                            <div class="col s6">
+                                <a class="waves-effect waves-light red btn-floating button-collapse" data-activates="search-side">
+                                    <i class="mdi-content-add"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <ul id="search-side" class="side-nav">
+            <li>
+                <a onclick="$('#search-form').attr('action', 'https://www.google.fr/search').submit();">Google</a>
+            </li>
+            <li>
+                <a onclick="$('#search-form').attr('action', 'https://www.bing.com/search').submit();">Bing</a>
+            </li>
+            <li>
+                <a onclick="$('#search-form').attr('action', 'https://fr.search.yahoo.com/search').submit();">Yahoo!</a>
+            </li>
+            <li>
+                <a onclick="$('#search-form').attr('action', 'https://duckduckgo.com').submit();">DuckDuckGo</a>
+            </li>
+            <li>
+                <a onclick="$('#search-form').attr('action', 'https://www.qwant.com').submit();">Qwant</a>
+            </li>
+            <li>
+                <a onclick="$('#search-form').attr('action', 'https://classic.ixquick.com/do/metasearch.pl').submit();">IxQuick</a>
+            </li>
+            <li>
+                <a onclick="$('#search-form').attr('action', 'https://www.exalead.com/search/web/results/').submit();">Exalead</a>
+            </li>
+        </ul>
+        <script>
+            $('.button-collapse').sideNav({
+                menuWidth: 300,
+                edge: 'right'
+            });
+        </script>
+        <div class="parallax-container">
+            <div class="parallax random_img"></div>
+        </div>
+        <script>
+            //Haut, haut, bas, bas, gauche, droite, gauche, droite, B, A
+			var k = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65],
+			n = 0;
+			$(document).keydown(function (e) {
+			if (e.keyCode === k[n++]) {
+				if (n === k.length) {
+					document.location.href="https://www.youtube.com/watch?v=wZZ7oFKsKzY";
+					n = 0;
+					return false;
+				}
+			}
+			else {
+				n = 0;
+			}
+			});
+            $(window).on('scroll', function() {
+                var st = $(this).scrollTop();
+                $('#section-nav').css({ 'opacity' : (1 - st/350) });
+            });
+            var randomImage = {
+                paths: [
+                    "{{ url_for('static', filename='images/Mercure.png') }}",
+                    "{{ url_for('static', filename='images/Mercure.png') }}",
+                    "{{ url_for('static', filename='images/sun.jpg') }}",
+                    "{{ url_for('static', filename='images/mars.jpg') }}",
+                    "{{ url_for('static', filename='images/jupiter.jpg') }}",
+                    "{{ url_for('static', filename='images/earth.jpg') }}",
+                ],
+                generate: function(){
+                    var path = randomImage.paths[Math.floor(Math.random()*randomImage.paths.length)];
+                    var img = new Image();
+                    img.src = path;
+                    $(".random_img").html(img);
+                }
+            };
+            randomImage.generate();
+            $(document).ready(function(){
+                $('.parallax').parallax();
+            });
+        </script>
+        <div class="section grey lighten-3">
+            <h3 class="center-align">Widgets <a class="btn-floating green waves-effect waves-light" onclick="$('#widget').openModal();"><i class="mdi-content-add"></i></a></h3>
+            <div class="row">
+                <div class="col s12 m6 l4">
+                    <div class="card">
+                        <div class="card-content" id="news" style="overflow: auto;">
+                        </div>
+                        <script>
+                            $(document).ready(function () {
+                                $('#news').rssfeed('{{ rssfeed }}', {
+                                    limit: 12,
+                                    media: false,
+                                    linktarget: '_blank'
+                                });
+                            });
+                        </script>
+                        <div class="card-action">
+                            <a href="{{ rssfeed }}">Voir le flux</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col s12 m6 l4">
+                    <div class="card">
+                        <form id="note-form" action="/take-note" method="POST">
+                            <div class="card-content">
+                                <span class="card-title black-text">Bloc-Note</span>
+                                <textarea maxlength="500" class="flow-text" style="height: 300px; resize: none" name="note">{{ note }}</textarea>
+                            </div>
+                            <div class="card-action">
+                                <a onclick="$('#note-form').submit();">Mettre à jour</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                    {% for smtitle, smlink in smwidgetlist: %}
+                        <form action="/widget/del-sm-widget" id="Smart_widget_named_{{ smtitle|replace(' ', '_') }}" method="POST"><input type="hidden" name="title" value="{{ smtitle }}"></form>
+                        <div class="col s12 m6 l4">
+                            <div class="card">
+                                <div class="card-content">
+                                    <span class="card-title black-text">{{ smtitle }}</span><span class="badge">Widget Intelligent</span></br>
+                                    <div id="Smart_container_{{ smtitle|replace(' ', '_') }}" style="overflow:auto; height:300px"></div>
+                                    <script>
+                                            $.getJSON("https://noembed.com/embed?maxwidth=100&maxheight=100&nowrap=on",
+                                                {
+                                                    url: '{{ smlink }}'
+                                                },
+                                                function(data) {
+                                                    $('#Smart_container_{{ smtitle|replace(" ", "_") }}').append(data.html);
+                                                }
+                                            );
+                                        </script>
+                                </div>
+                                <div class="card-action">
+                                    <a target="_blank" href="{{ smlink }}">Accéder au Widget</a><a Onclick="$('#Smart_widget_named_{{ smtitle|replace(' ', '_') }}').submit();">Fermer le Widget</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    {% if widgetlist != {} %}
+                        <script>
+                            $(window).load( function(){
+                                $('#widget_container').html('{% for title, link in widgetlist: %}<form action="/widget/del_widget" id="widget_named_{{ title|replace(' ', '_') }}" method="POST"><input type="hidden" name="title" value="{{ title }}"></form><div class="col s12 m6 l4"><div class="card"><div class="card-content"><span class="card-title black-text">{{ title }}</span></br><center><div class="iframe-responsive-wrapper"><img class="iframe-ratio" src="data:image/gif;base64,R0lGODlhEAAJAIAAAP///wAAACH5BAEAAAAALAAAAAAQAAkAAAIKhI+py+0Po5yUFQA7"/><iframe class="responsive-img" src="{{ link }}" sandbox="allow-scripts"></iframe></div></center></div><div class="card-action"><a target="_blank" href="{{ link }}">Accéder au Widget</a><a Onclick="$(\'#widget_named_{{ title|replace(' ', '_') }}\').submit();">Fermer le Widget</a></div></div></div>{% endfor %}');
+                            });
+                        </script>
+                    {% endif %}
+                    <div id="widget_container">
+                    </div>
+            </div>
+        </div>

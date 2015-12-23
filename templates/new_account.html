@@ -1,0 +1,195 @@
+<html>
+	<head>
+		<title>We-Start</title>
+		<meta charset="UTF-8">
+		<link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='materialize/css/materialize.min.css') }}"  media="screen,projection"/>
+		<link rel="stylesheet" href="{{ url_for('static', filename='animate.css') }}">
+		<link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.ico') }}" />
+		<!--[if IE]><link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}" /><![endif]-->
+		<style>
+			body {
+				background-color: whitesmoke
+			}
+			.tabs {
+				background-color: #0091ea;
+			}
+			.tabs li.tab {
+				background-color: #0091ea;
+			}
+			.tabs li.tab a {
+				color: #e6ee9c;
+			}
+			.tabs li.tab a:hover {
+				color: #eeff41;
+			}
+			.tabs .indicator {
+				background-color: #cddc39;
+			}
+			.iframe-responsive-wrapper {
+				position: relative;
+			}
+			.iframe-responsive-wrapper .iframe-ratio {
+				display: block;
+				width: 100%;
+				height: auto;
+			}
+			.iframe-responsive-wrapper iframe {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+			}
+			.card-panel{
+				height: 350px;
+			}
+		</style>
+	</head>
+	<body>
+		<script src="{{ url_for('static', filename='jquery-2.1.4.min.js') }}"></script>
+		<script type="text/javascript" src="{{ url_for('static', filename='materialize/js/materialize.min.js') }}"></script>
+		<div class="fixed-action-btn" style="bottom: 45px; right: 24px;">
+			<a  href="https://github.com/the-new-sky/We-Start-dev/issues" class="btn-floating btn-large waves-effect waves-light red">
+				<i class="large mdi-action-bug-report"></i>
+			</a>
+		</div>
+		<div class="row">
+	        <div class="slider">
+                <ul class="slides">
+                    <li>
+                        <img src="{{ url_for('static', filename='images/jupiter.jpg') }}">
+                        <div class="caption center-align">
+                            <h3>We-Start</h3>
+                            <h5 class="light grey-text text-lighten-3">Une page d'accueil où tout commence.</h5>
+                        </div>
+                    </li>
+                    <li>
+                        <img src="{{ url_for('static', filename='images/Mercure.png') }}">
+                        <div class="caption right-align">
+                            <h3>We-Start Mercurius 2.1</h3>
+                            <h5 class="light grey-text text-lighten-3">La page d'accueil venue d'une autre planète.</h5>
+                        </div>
+                    </li>
+                    <li>
+                        <img src="{{ url_for('static', filename='images/mars.jpg') }}">
+                        <div class="caption left-align">
+                            <h3>Vous êtes chez vous !</h3>
+                            <h5 class="light grey-text text-lighten-3">Nous ne sauvegardons pas vos données, elles restent sur votre ordinateur !</h5>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <script>
+                $(document).ready(function(){
+                    $('.slider').slider({full_width: true});
+                });
+            </script>
+        </div>
+        <div class="section grey lighten-4">
+            <div class="row container">
+                <h2 class="header black-text">Intelligente</h2>
+                <p class="flow-text">We-Start vous donnes des informations pertinentes selon vos recherche, que vous
+                    cherchiez le nom du réalisateur d'un film, l'emplacement d'une rue ou un article qui fait le buzz.
+                    We-Start utilise le méta-moteur <i>Searx</i> afin de garantir des résultats pertinents et anonyme.
+                </p>
+            </div>
+        </div>
+        <div class="parallax-container">
+            <div class="parallax"><img src="{{ url_for('static', filename='images/venus.jpg') }}"/></div>
+        </div>
+        <div class="section grey lighten-4">
+            <div class="row container">
+                <h2 class="header black-text">Belle</h2>
+                <p class="flow-text">We-Start respecte les recommandations de Google en matière de design, elle utilise
+                    le framework <i>Materialize.css</i> afin de garantir l'affichage de votre page d'accueil. Nous avions
+                    choisis une page sur le thème de l'espace, les images sont fournis par la NASA.
+                </p>
+            </div>
+        </div>
+        <div class="parallax-container">
+            <div class="parallax"><img src="{{ url_for('static', filename='images/sun.jpg') }}"/></div>
+        </div>
+        <div class="section grey lighten-4">
+            <div class="row container">
+                <h2 class="header black-text">Personalisable</h2>
+                <p class="flow-text">We-Start s'adapte à vos goûts, que vous soyez fan de musique ou de sport, vous
+                    pouvez rester constamment informé sur les sujets qui vous passionnes. Vous pouvez épingler vos sites
+                    web favoris, par exemple votre client mail ou une page d'actualité.
+                </p>
+            </div>
+        </div>
+        <div class="parallax-container">
+            <div class="parallax"><img src="{{ url_for('static', filename='images/Mercure.png') }}"/></div>
+        </div>
+        <div class="section grey lighten-4">
+            <div class="row container">
+                <h2 class="header black-text">Vous êtes chez vous !</h2>
+                <div class="col s12 l4">
+                    <center>
+                        <i class="mdi-action-lock-open large"></i>
+                        <h4>Open-Source</h4>
+                        <p class="flow-text">We-Start est open-source, vous pouvez l'améliorer vous-mêmes,
+                            son créateur est très ouvert à la critique constructive.</p>
+                    </center>
+                </div>
+                <div class="col s12 l4">
+                    <center>
+                        <i class="mdi-action-visibility-off large"></i>
+                        <h4>Respectieuse</h4>
+                        <p class="flow-text">Vos données sont stockées dans un cookie sur votre ordinateur, nous ne les
+                            enregistrons pas à des fins publicitaires ou statistiques.</p>
+                    </center>
+                </div>
+                <div class="col s12 l4">
+                    <center>
+                        <i class="mdi-action-trending-up large"></i>
+                        <h4>Evolutive</h4>
+                        <p class="flow-text">We-Start évolue de jour en jour, son créateur se passionne pour toutes les
+                        dernières technologies qui pourrait être intégrée.</p>
+                    </center>
+                </div>
+            </div>
+        </div>
+        <div class="parallax-container">
+            <div class="parallax"><img src="{{ url_for('static', filename='images/jupiter.jpg') }}"/></div>
+        </div>
+        <div class="section grey lighten-4">
+            <div class="row container">
+                <h2 class="header black-text">Inscription !</h2>
+                <center><p class="flow-text">Rejoignez nous maintenant !</p></center>
+                <div class="col s12 l6">
+					<p class="flow-text">Entrez un pseudonyme pour commencer à utiliser We-Start.</p>
+					<form action="/" method="post">
+						<div class="input-field">
+							<input id="pseudo" type="text" name="pseudo" class="validate">
+							<label for="pseudo">Choisissez un pseudonyme</label>
+						</div>
+						<center>
+							<button class="btn waves-effect waves-light" type="submit" name="action">S'inscrire
+								<i class="mdi-content-send right"></i>
+							</button>
+						</center>
+					</form>
+                </div>
+                <div class="col s12 l6">
+					<p class="flow-text">Entrez un code de duplication pour récupérer vos données.</p>
+					<form action="/" method="post">
+						<div class="input-field">
+							<input id="code" type="text" name="code" class="validate">
+							<label for="code">Collez votre code ici</label>
+						</div>
+						<center>
+							<button class="btn waves-effect waves-light" type="submit" name="action">Utilisez le code
+								<i class="mdi-content-send right"></i>
+							</button>
+						</center>
+					</form>
+                </div>
+                <a class="left-align" href="{{ url_for('static', filename='cgu.pdf') }}">CGU</a>
+            </div>
+        </div>
+        <script>
+            $(document).ready(function(){
+                $('.parallax').parallax();
+            });
+        </script>

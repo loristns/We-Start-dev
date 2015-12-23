@@ -1,0 +1,1080 @@
+<html itemscope itemtype="http://schema.org/Other">
+	<head>
+		<title>We-Start</title>
+		<style>
+			body {
+				background-color: whitesmoke
+			}
+		</style>
+		<meta charset="UTF-8">
+		<link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='materialize/css/materialize.min.css') }}"  media="screen,projection"/>
+		<link rel="stylesheet" href="{{ url_for('static', filename='animate.css') }}">
+		<link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.ico') }}" />
+		<!--[if IE]><link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}" /><![endif]-->
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+		<style>
+			.tabs {
+				background-color: whitesmoke;
+			}
+			.tabs li.tab {
+				background-color: whitesmoke;
+			}
+			.tabs li.tab a {
+				color: black;
+			}
+			.tabs li.tab a:hover {
+				color: green;
+			}
+			.tabs .indicator {
+				background-color: green;
+			}
+			.iframe-responsive-wrapper        {
+				position: relative;
+			}
+			.iframe-responsive-wrapper .iframe-ratio {
+				display: block;
+				width: 100%;
+				height: auto;
+			}
+			.iframe-responsive-wrapper iframe {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+			}
+			.card{
+				height: 400px;
+			}
+			.card .card-content {
+				height: 340px; 
+			}
+			.collection {
+				overflow:visible;
+			}
+		</style>
+		<meta itemprop="name" content="{{ search }}">
+		<meta itemprop="description" content="J&#39;ai recherché(e) &#39;{{ search }}&#39; avec We-Start.">
+		<link rel="stylesheet" href="{{ url_for('static', filename='leaflet.css') }}" />
+		<script src="{{ url_for('static', filename='leaflet.js') }}"></script>
+	</head>
+	<body>
+		<script src="{{ url_for('static', filename='jquery-2.1.4.min.js') }}"></script>
+		<script src="{{ url_for('static', filename='pushbullet.js') }}"></script>
+		<script type="text/javascript" src="{{ url_for('static', filename='materialize/js/materialize.min.js') }}"></script>
+		<script>
+			if ("{{ search }}" == "Dinnerbone") {
+				document.body.style.transform="rotate(180deg)";
+			}
+		</script>
+		{% if push %}
+			<script>
+				PushBullet.APIKey = "{{ pushid }}";
+				PushBullet.push("note", null, null, {title: "We-Start Note", body: "{{ search }}"});
+			</script>
+		{% endif %}
+		<div class="fixed-action-btn" style="bottom: 45px; right: 24px;">
+			<a  href="https://github.com/the-new-sky/We-Start-dev/issues" class="btn-floating btn-large waves-effect waves-light red">
+				<i class="large mdi-action-bug-report"></i>
+			</a>
+		</div>
+        <ul id="side-world" class="side-nav">
+            <li class="center-align">
+                <img style="height: 100px" src="{{ url_for('static', filename='images/little-logo.png') }}"/>
+                <p class="flow-text">Bienvenue {{ pseudo }}</p>
+            </li>
+            <li>
+                <a href="/setting" class="flow-text">Vos paramètres</a>
+            </li>
+            <li>
+                <a onclick="$('#widget').openModal();" class="flow-text">Ajouter un widget</a>
+            </li>
+            <li>
+                <a onclick="$('#sm-widget').openModal();" class="flow-text">Ajouter un widget intelligent</a>
+            </li>
+            <li>
+                <a onclick="$('#socialsharing').openModal();" class="flow-text">Partager sur les réseaux sociaux</a>
+            </li>
+            <li class="center-align">
+                <p class="flow-text">Dernières recherches</p>
+            </li>
+            {% for valuelist in story %}
+                <li>
+                    <a class="flow-text" href="/search?q={{ valuelist }}"> {{ valuelist }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+        <div id="widget" class="modal">
+            <form class="widget_form" action="/widget/add-widget" method="POST">
+                <div class="modal-content">
+                    <h3>Ajouter un widget</h3>
+                    <p class="flow-text">Vous pouvez créer un Widget en indiquant un titre et son adresse URL, le site web
+                        sera alors épinglé à votre page d'accueil. Nous vous recommandons d'utiliser de préférence,
+                        des sites responsives ou en version mobile.</p>
+                    <div class="input-field">
+                        <i class="mdi-av-subtitles prefix"></i>
+                        <input id="send1" name="title" type="text" class="validate"/>
+                            <label for="send1">Entrez le titre de votre Widget</label>
+                    </div>
+                    <div class="input-field">
+                        <i class="mdi-social-public prefix"></i>
+                        <input id="adress1" name="link" type="url" class="validate">
+                            <label for="adress1">Entrez l'URL de votre Widget</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class=" modal-action modal-close waves-effect waves-green btn-flat" type="submit">Ajouter</button>
+                </div>
+            </form>
+        </div>
+        <script>
+            $('.widget_form').submit(function() {
+                if ($.trim($("#send1").val()) === "" || $.trim($("#adress1").val()) === "") {
+                    alert('Vous devez remplir entièrement le formulaire');
+                    return false;
+                }
+            });
+        </script>
+        <div id="sm-widget" class="modal">
+            <form class="sm-widget_form" action="/widget/add-sm-widget" method="POST">
+                <div class="modal-content">
+                    <h3>Ajouter un widget intelligent</h3>
+                    <p class="flow-text">Mieux qu'un Widget, avec un Widget intelligent, l'interface du site s'adapte
+                        automatiquement pour vous afficher l'essentiel. Seuls certains sites sont supportés,
+                        vérifiez que votre site web est compatible <a href="https://noembed.com/#supported-sites">ici</a>.</p>
+                    <div class="input-field">
+                        <i class="mdi-av-subtitles prefix"></i>
+                        <input id="send" name="title" type="text" class="validate"/>
+                            <label for="send">Entrez le titre de votre Widget</label>
+                    </div>
+                    <div class="input-field">
+                        <i class="mdi-social-public prefix"></i>
+                        <input id="adress" name="link" type="url" class="validate">
+                            <label for="adress">Entrez l'URL de votre Widget</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class=" modal-action modal-close waves-effect waves-green btn-flat" type="submit">Ajouter</button>
+                </div>
+            </form>
+        </div>
+        <script>
+            $('.sm-widget_form').submit(function() {
+                if ($.trim($("#send").val()) === "" || $.trim($("#adress").val()) === "") {
+                    alert('Vous devez remplir entièrement le formulaire');
+                    return false;
+                }
+            });
+        </script>
+		<div id="socialsharing" class="modal modal-fixed-footer">
+			<div class="modal-content">
+				<h4>Partager sur les réseaux sociaux</h4>
+				</br>
+				<div class="row">
+					<div class="col s12 m12 l4">
+						<center>
+							<img class="responsive-img" src="{{ url_for('static', filename='images/twitter.png') }}"/>
+							<h5>Twitter</h5>
+							</br>
+							<a id="twitter-share">Partager sur Twitter</a>
+							<script>
+								var twitterurl = "https://twitter.com/intent/tweet/?text=Voici%20ce%20que%20j%27ai%20recherch%C3%A9(e)%20avec%20%23We-Start%20%3A&url=".concat(window.location);
+								$("#twitter-share").attr('href', twitterurl);
+							</script>
+						</center>
+					</div>
+					<div class="col s12 m12 l4">
+						<center>
+							<img class="responsive-img" src="{{ url_for('static', filename='images/googleplus.png') }}"/>
+							<h5>Google+</h5>
+							</br>
+							<a id="gplus-share">Partager sur Google+</a>
+							<script>
+								var gplusurl = "https://plus.google.com/share?url=".concat(window.location);
+								$("#gplus-share").attr('href', gplusurl);
+							</script>
+						</center>
+					</div>
+					<div class="col s12 m12 l4">
+						<center>
+							<img class="responsive-img" src="{{ url_for('static', filename='images/facebook.png') }}"/>
+							<h5>Facebook</h5>
+							</br>
+							<a id="facebook-share">Partager sur Facebook</a>
+							<script>
+								var facebookurl = "https://www.facebook.com/sharer/sharer.php?u=".concat(window.location);
+								$("#facebook-share").attr('href', facebookurl);
+							</script>
+						</center>
+					</div>
+					</br></br>
+					<div class="col s12 m12 l4 container">
+						<center>
+							<i class="large mdi-alert-warning"></i>
+						</center>
+					</div>
+					<div class="col s12 m12 l8 container">
+						<center>
+							<p>
+								</br>
+								Afin de protéger votre vie privée, nous n'utilisons pas les systèmes de tracking fournis par les réseaux sociaux.
+							</p>
+						</center>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Fermer</a>
+			</div>
+		</div>
+        <div class="section grey lighten-4" id="section-nav">
+            <br/>
+            <div class="row center-align">
+                <div class="col m3 s4 offset-s4">
+                    <a href="#" data-activates="side-world" class="button-collapse">
+                        <i class="mdi-navigation-menu black-text medium"></i>
+                    </a>
+                </div>
+                <div class="col l1 m3 s4 offset-s4">
+                    <center>
+                        <a href="/">
+                            <img height="75%" width="75%" class="responsive-img" style="border-radius: 10px;"
+                                 src="{{ url_for('static', filename='images/little-logo.png') }}"/>
+                        </a>
+                    </center>
+                </div>
+                <div class="col l8 m6 s12 row container">
+                    <form class="input-field" action="/search" id="search-form" method="GET">
+                        <div class="col l4 s12">
+                            <input id="icon_prefix" name="q" type="text" list="suggestions" class="validate" value="{{ search }}"/>
+                                <label for="icon_prefix">Rechercher un site web, une personne ...</label>
+                                <datalist id="suggestions">
+                                    {% for valuelist in story %}
+                                        <option value="{{ valuelist }}">
+                                    {% endfor %}
+                                </datalist>
+                        </div>
+                        <div class="col l2 s6">
+                            <button class="btn-floating waves-effect blue waves-light" type="submit">
+                                <i class="mdi-action-search"></i>
+                            </button>
+                        </div>
+                        <div class="col l2 s6">
+                            <a class="waves-effect waves-light red btn-floating button-collapse" data-activates="search-side">
+                                <i class="mdi-content-add"></i>
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <ul id="search-side" class="side-nav">
+            <li>
+                <a onclick="$('#search-form').attr('action', 'https://www.google.fr/search').submit();">Google</a>
+            </li>
+            <li>
+                <a onclick="$('#search-form').attr('action', 'https://www.bing.com/search').submit();">Bing</a>
+            </li>
+            <li>
+                <a onclick="$('#search-form').attr('action', 'https://fr.search.yahoo.com/search').submit();">Yahoo!</a>
+            </li>
+            <li>
+                <a onclick="$('#search-form').attr('action', 'https://duckduckgo.com').submit();">DuckDuckGo</a>
+            </li>
+            <li>
+                <a onclick="$('#search-form').attr('action', 'https://www.qwant.com').submit();">Qwant</a>
+            </li>
+            <li>
+                <a onclick="$('#search-form').attr('action', 'https://classic.ixquick.com/do/metasearch.pl').submit();">IxQuick</a>
+            </li>
+            <li>
+                <a onclick="$('#search-form').attr('action', 'https://www.exalead.com/search/web/results/').submit();">Exalead</a>
+            </li>
+        </ul>
+        <script>
+            $('.button-collapse').sideNav({
+                menuWidth: 300,
+                edge: 'right'
+            });
+        </script>
+        <div>
+            <ul class="tabs">
+                <li class="tab col s3"><a href="#speed" class="active"><span class="title hide-on-small-only">Speed</span><i class="mdi-av-fast-forward hide-on-med-and-up"></i></a></li>
+                <li class="tab col s3"><a href="#img"><span class="title hide-on-small-only">Images</span><i class="mdi-image-photo-camera hide-on-med-and-up"></i></a></li>
+                <li class="tab col s3"><a href="#vid"><span class="title hide-on-small-only">Vidéos</span><i class="mdi-image-movie-creation hide-on-med-and-up"></i></a></li>
+                <li class="tab col s3"><a href="#wiki"><span class="title hide-on-small-only">Wikis</span><i class="mdi-editor-format-quote hide-on-med-and-up"></i></a></li>
+                <li class="tab col s3"><a href="#shop"><span class="title hide-on-small-only">Shop</span><i class="mdi-action-shopping-cart hide-on-med-and-up"></i></a></li>
+                <li class="tab col s3"><a href="#autre"><span class="title hide-on-small-only">Autre</span><i class="mdi-hardware-keyboard-control hide-on-med-and-up"></i></a></li>
+            </ul>
+        </div>
+		<div class="row">
+			<div id="speed">
+				<div class="col s12 l8">
+                    <div style="overflow:auto;"><ul class="collection" id="searxgen"></ul></div>
+                    <script>
+                        $.getJSON("https://searx.me/",
+                                {
+                                    q: '{{ search }}',
+                                    format: 'json',
+                                    categories: 'general'
+                                },
+                                function(data) {
+                                    var listgen = '';
+                                    $.each(data.results, function(i,result){
+                                        listgen += '<li class="collection-item" id="boldify"><a class="title" target="_blank" href="' + result.url + '">' + result.title + '</a><p>' + result.content +'</p><span class="badge">' + result.host + '</span></br></li>';
+                                        if ( i == 9 ) return false;
+                                    });
+                                    if (listgen != '') {
+                                        $('#searxgen').append(listgen);
+                                    }
+                                    else {
+                                        $('#searxgen').append('<center><i class="large mdi-alert-warning"></i></br><h3>Aucuns résultats</h3></br><p>Utilisez un des moteurs de recherches dans la rubrique "généraux"</center>');
+                                    }
+                                });
+                    </script>
+                </div>
+				<div class="col s12 m6 l4">
+					<div class="card">
+						<div class="card-content">
+							<span class="card-title black-text">Wikipédia</span></br>
+							<div id="wikipedia" style="overflow:auto; height: 260px"></div>
+							<script>
+								$.getJSON("https://noembed.com/embed?maxwidth=4&maxheight=4&nowrap=on",
+									{
+										url: 'https://fr.wikipedia.org/wiki/{{ search }}'
+									},
+									function(data) {
+										if (data.error == "Not Found"){
+											$('#wikipedia').append('<ul class="collection"><center><i class="large mdi-alert-warning"></i></br><h3>Aucuns résultats</h3></br><a target="_blank" href="https://fr.wikipedia.org/w/index.php?search={{ search }}">Recherche avancée sur Wikipédia</a></br><a target="_blank" href="https://www.google.fr/search?q={{ search }}">Recherche sur Google</a></center></ul>');
+										}
+										else {
+											$('#wikipedia').append(data.html);
+										}
+									}
+								);	
+							</script>
+						</div>
+						<div class="card-action" style="background-color: White;">
+							<a class="black-text" href="https://fr.wikipedia.org/wiki/{{ search }}">Voir en totalité sur Wikipédia</a>
+						</div>
+					</div>
+				</div>
+				<div class="col s12 m6 l4">
+					<div class="card">
+						<div class="card-content">
+							<span class="card-title black-text">Cartographie</span></br>
+							<div id="map" style="height: 300px"></div>
+							<script>
+								$.getJSON("http://nominatim.openstreetmap.org/search",
+									{
+										q: '{{ search }}',
+										format: 'json',
+										limit:0
+									},
+									function(data) {
+										try {
+											var latitude = data[0].lat;
+											var longitude = data[0].lon;
+											latitude = parseFloat(latitude);
+											longitude = parseFloat(longitude);
+											var map = L.map('map').setView([latitude, longitude], 13);
+											map.panTo([latitude, longitude]);
+	
+											L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+												attribution: 'Carte par &copy; <a href="http://osm.org/copyright">OpenStreetMap</a>'
+											}).addTo(map);
+
+											L.marker([latitude, longitude]).addTo(map)
+												.bindPopup(data[0].display_name)
+												.openPopup();
+												
+										}
+										catch (e) {
+											$('#map').append('<ul class="collection"><center><i class="large mdi-alert-warning"></i></br><h3>Aucuns résultats</h3></br><a target="_blank" href="https://www.openstreetmap.org/search?query={{ search }}">Recherche avancée sur OpenStreetMap</a></center></ul>');
+										}
+										});
+							</script>
+						</div>
+					</div>
+				</div>
+				<div class="col s12 m6 l4">
+					<div class="card">
+						<div class="card-content">
+							<span class="card-title black-text">Social</span><span class="badge">Via Searx</span></br>
+							<div style="overflow:auto; height: 260px"><ul class="collection" id="searxsocial"></ul></div>
+							<script>
+								$.getJSON("https://searx.me/",
+									{
+										q: '{{ search }}',
+										format: 'json',
+										categories: 'social media'
+									},
+									function(data) {
+										var listsocial = '';
+										$.each(data.results, function(i,result){
+											listsocial
+											+= '<li class="collection-item"><a target="_blank" href="' + result.url + '">' + result.title + '</a><p>' + result.content +'</p><span class="badge">' + result.publishedDate + '</span></br></li>';
+											if ( i == 12 ) return false;
+										});
+										if (listsocial != '') {
+											$('#searxsocial').append(listsocial);
+										}
+										else {
+											$('#searxsocial').append('<center><i class="large mdi-alert-warning"></i></br><h3>Aucuns résultats</h3></br><a target="_blank" href="https://twitter.com/search?q={{ search }}">Recherche sur Twitter</a></center>');
+										}
+									});
+							</script>
+						</div>
+						<div class="card-action" style="background-color: White;">
+							<a class="black-text" href="https://twitter.com/search?q={{ search }}">Rechercher sur Twitter</a>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div id="img" class="container">
+				<div class="col s12">
+					<div class="card z-depth-2" style="height:600px">
+						<div class="card-content" style="height:540px">
+							<span class="card-title black-text">Recherche d'images</span><span class="badge">Via Searx</span></br>
+							<div style="overflow:auto; height: 450px"><ul class="collection" id="searximg"></ul></div>
+							<script>
+								$.getJSON("https://searx.me/",
+									{
+										q: '{{ search }}',
+										format: 'json',
+										categories: 'images'
+									},
+									function(data) {
+										var listimg = '';
+										$.each(data.results, function(i,result){
+											listimg
+											+= '<li class="collection-item avatar"><img src="' + result.img_src + '" class="circle"><span class="title">' + result.title + '</span></br></br><a target="_blank" href="' + result.img_src + '">' + result.img_src + '</a><a href="' + result.url + '" class="secondary-content"><i class="mdi-hardware-keyboard-arrow-right"></i></a><p>' + result.content +'</p><span class="badge">' + result.host + '</span></br></li>';
+											if ( i == 12) return false;
+										});
+										if (listimg != '') {
+											$('#searximg').append(listimg);
+										}
+										else {
+											$('#searximg').append('<center><i class="large mdi-alert-warning"></i></br><h3>Aucuns résultats</h3></br><p>Utilisez un des moteurs de recherches ci-dessous.</center>');
+										}
+									});
+							</script>
+						</div>
+						<div class="card-action">
+							<a class="black-text" href="https://searx.me/?q={{ search }}&category_images">Recherche sur Searx</a>
+						</div>
+					</div>
+				</div>
+				<div class="col s12">
+					<div class="valign-wrapper" style="align: center;">
+						<ul class="collection with-header valign" style="width: 100%">
+							<li class="collection-header"><h4>Recherche d'images sur des moteurs généralistes<h4></li>
+							<li class="collection-item">
+								<a target="_blank" href="https://www.google.fr/search?tbm=isch&q={{ search }}">
+									Google
+								</a>
+								<a target="_blank" href="https://www.google.fr/search?tbm=isch&q={{ search }}" class="secondary-content">
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+							</li>
+							<li class="collection-item">
+								<a target="_blank" href="https://www.bing.com/images/search?q={{ search }}">
+									Bing
+								</a>
+								<a target="_blank" href="https://www.bing.com/images/search?q={{ search }}" class="secondary-content">
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+							</li>
+							<li class="collection-item">
+								<a target="_blank" href="https://fr.images.search.yahoo.com/search/images?p={{ search }}">
+									Yahoo!
+								</a>
+								<a target="_blank" href="https://fr.images.search.yahoo.com/search/images?p={{ search }}" class="secondary-content">
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+							</li>
+							<li class="collection-item">
+								<a target="_blank" href="https://www.qwant.com/?t=images&q={{ search }}">
+									Qwant
+								</a>
+								<a target="_blank" href="https://www.qwant.com/?t=images&q={{ search }}" class="secondary-content">
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+								<div class="secondary-content tooltipped" data-position="left" data-delay="50" data-tooltip="Protection de la vie privée">
+									<i class="mdi-hardware-security"></i>
+								</div>
+							</li>
+							<li class="collection-item">
+								<a target="_blank" href="http://www.exalead.fr/search/image/results/?q={{ search }}">
+									Exalead
+								</a>
+								<a target="_blank" href="http://www.exalead.fr/search/image/results/?q={{ search }}" class="secondary-content">
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+							</li>
+							<li class="collection-item">
+								<a target="_blank" href="https://www.yandex.com/images/search?text={{ search }}">
+									Yandex
+								</a>
+								<a target="_blank" href="#" class="secondary-content dropdown-button" data-activates='drop-yandex-img'>
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+								<div class="secondary-content tooltipped" data-position="left" data-delay="50" data-tooltip="Site Anglophone/Russophone">
+									<i class="mdi-action-language"></i>
+								</div>
+							</li>
+						</ul>
+					</div>
+					</br>
+					<div class="valign-wrapper" style="align: center;">
+						<ul class="collection with-header valign" style="width: 100%">
+							<li class="collection-header"><h4>Plateformes de partages d'images<h4></li>
+							<li class="collection-item">
+								<a target="_blank" href="https://www.flickr.com/search/?text={{ search }}">
+									Flickr
+								</a>
+								<a target="_blank" href="https://www.flickr.com/search/?text={{ search }}" class="secondary-content">
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+							</li>
+							<li class="collection-item">
+								<a target="_blank" href="http://www.deviantart.com/browse/all/?q={{ search }}">
+									DeviantArt
+								</a>
+								<a target="_blank" href="http://www.deviantart.com/browse/all/?q={{ search }}" class="secondary-content">
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+								<div class="secondary-content tooltipped" data-position="left" data-delay="50" data-tooltip="Pour les artistes">
+									<i class="mdi-content-create"></i>
+								</div>
+							</li>
+						</ul>
+					</div>
+					<div class="valign-wrapper" style="align: center;">
+						<ul class="collection with-header valign" style="width: 100%">
+							<li class="collection-header"><h4>Plateformes de partages d'icônes<h4></li>
+							<li class="collection-item">
+								<a target="_blank" href="http://icones.pro/?s={{ search }}">
+									Icones.pro
+								</a>
+								<a target="_blank" href="http://icones.pro/?s={{ search }}" class="secondary-content">
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+							</li>
+							<li class="collection-item">
+								<a target="_blank" href="https://www.iconfinder.com/search/?q={{ search }}">
+									IconFinder
+								</a>
+								<a target="_blank" href="#" class="secondary-content dropdown-button" data-activates='drop-iconfinder'>
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+								<div class="secondary-content tooltipped" data-position="left" data-delay="50" data-tooltip="Site Anglophone">
+									<i class="mdi-action-language"></i>
+								</div>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div id="vid" class="container">
+				<div class="col s12">
+					<div class="card z-depth-2" style="height:600px">
+						<div class="card-content" style="height:540px">
+							<span class="card-title black-text">Recherche de vidéos</span><span class="badge">Via Dailymotion</span></br>
+							<div style="overflow:auto; height: 480px"><ul class="collection" id="videolist"></ul></div>
+								<script>
+									$.getJSON("https://api.dailymotion.com/videos?fields=title,url,views_total&sort=trending",
+									{
+										search: '{{ search }}'
+									},
+									function(data) {
+										var listvideo = '';
+										$.each(data.list, function(i,list){
+											listvideo
+											+= '<li class="collection-item avatar"><i class="mdi-av-video-collection circle orange"></i><span class="title">'+ list.title +'</span></br><a href="'+ list.url +'">Voir la vidéo</a><span class="badge">'+ list.views_total +' vue(s)</span></li>';
+											if ( i == 15 ) return false;
+										});
+										if (listvideo != '') {
+											$('#videolist').append(listvideo);
+										}
+										else {
+											$('#videolist').append('<center><i class="large mdi-alert-warning"></i></br><h3>Aucuns résultats</h3></br><p>Utilisez un des moteurs de recherches ci-dessous.</center>');
+										}
+									}
+								);	
+					</script>
+						</div>
+					</div>
+				</div>
+				<div class="col s12">
+					<div class="valign-wrapper" style="align: center;">
+						<ul class="collection with-header valign" style="width: 100%">
+							<li class="collection-header"><h4>Recherche de vidéos sur des moteurs généralistes<h4></li>
+							<li class="collection-item">
+								<a target="_blank" href="https://www.google.fr/search?tbm=vid&q={{ search }}">
+									Google
+								</a>
+								<a target="_blank" href="https://www.google.fr/search?tbm=vid&q={{ search }}" class="secondary-content">
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+							</li>
+							<li class="collection-item">
+								<a target="_blank" href="https://www.bing.com/videos/search?q={{ search }}">
+									Bing
+								</a>
+								<a target="_blank" href="https://www.bing.com/videos/search?q={{ search }}" class="secondary-content">
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+							</li>
+							<li class="collection-item">
+								<a target="_blank" href="https://fr.video.search.yahoo.com/search/video?p={{ search }}">
+									Yahoo!
+								</a>
+								<a target="_blank" href="https://fr.video.search.yahoo.com/search/video?p={{ search }}" class="secondary-content">
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+							</li>
+							<li class="collection-item">
+								<a target="_blank" href="https://www.qwant.com/?t=videos&q={{ search }}">
+									Qwant
+								</a>
+								<a target="_blank" href="https://www.qwant.com/?t=videos&q={{ search }}" class="secondary-content">
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+								<div class="secondary-content tooltipped" data-position="left" data-delay="50" data-tooltip="Protection de la vie privée">
+									<i class="mdi-hardware-security"></i>
+								</div>
+							</li>
+							<li class="collection-item">
+								<a target="_blank" href="http://www.exalead.fr/search/video/results/?q={{ search }}">
+									Exalead
+								</a>
+								<a target="_blank" href="http://www.exalead.fr/search/video/results/?q={{ search }}" class="secondary-content">
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+							</li>
+							<li class="collection-item">
+								<a target="_blank" href="http://www.yandex.com/video/search?text={{ search }}">
+									Yandex
+								</a>
+								<a target="_blank" href="#" class="secondary-content dropdown-button" data-activates='drop-yandex-vid'>
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+								<div class="secondary-content tooltipped" data-position="left" data-delay="50" data-tooltip="Site Anglophone/Russophone">
+									<i class="mdi-action-language"></i>
+								</div>
+							</li>
+						</ul>
+					</div>
+				</div>
+					</br>
+				<div class="col s12">
+					<div class="valign-wrapper" style="align: center;">
+						<ul class="collection with-header valign" style="width: 100%">
+							<li class="collection-header"><h4>Plateformes de partages de vidéos<h4></li>
+							<li class="collection-item">
+								<a target="_blank" href="https://www.youtube.com/results?search_query={{ search }}">
+									Youtube
+								</a>
+								<a target="_blank" href="https://www.youtube.com/results?search_query={{ search }}" class="secondary-content">
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+							</li>
+							<li class="collection-item">
+								<a target="_blank" href="http://www.dailymotion.com/fr/relevance/universal/search/{{ search }}">
+									Dailymotion
+								</a>
+								<a target="_blank" href="http://www.dailymotion.com/fr/relevance/universal/search/{{ search }}" class="secondary-content">
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+							</li>
+							<li class="collection-item">
+								<a target="_blank" href="https://vimeo.com/search?q={{ search }}">
+									Vimeo
+								</a>
+								<a target="_blank" href="https://vimeo.com/search?q={{ search }}" class="secondary-content">
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<div id="wiki" class="container">
+					<div class="valign-wrapper" style="align: center;">
+						<ul class="collection with-header valign" style="width: 100%">
+							<li class="collection-header"><h4>Wikis de la Wikimedia Foundation<h4></li>
+							<li class="collection-item">
+								<a target="_blank" href="https://fr.wikipedia.org/w/index.php?search={{ search }}">
+									Wikipédia
+								</a>
+								<a target="_blank" href="https://fr.wikipedia.org/w/index.php?search={{ search }}" class="secondary-content">
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+							</li>
+							<li class="collection-item">
+								<a target="_blank" href="https://fr.wiktionary.org/w/index.php?search={{ search }}">
+									Wiktionnaire
+								</a>
+								<a target="_blank" href="https://fr.wiktionary.org/w/index.php?search={{ search }}" class="secondary-content">
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+							</li>
+							<li class="collection-item">
+								<a target="_blank" href="https://fr.wikiquote.org/w/index.php?search={{ search }}">
+									Wikiquote
+								</a>
+								<a target="_blank" href="https://fr.wikiquote.org/w/index.php?search={{ search }}" class="secondary-content">
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+							</li>
+							<li class="collection-item">
+								<a target="_blank" href="https://fr.wikibooks.org/w/index.php?search={{ search }}">
+									Wikilivre
+								</a>
+								<a target="_blank" href="https://fr.wikibooks.org/w/index.php?search={{ search }}" class="secondary-content">
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+							</li>
+							<li class="collection-item">
+								<a target="_blank" href="https://wikisource.org/w/index.php?search={{ search }}">
+									Wikisource
+								</a>
+								<a target="_blank" href="https://wikisource.org/w/index.php?search={{ search }}" class="secondary-content">
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+							</li>
+							<li class="collection-item">
+								<a target="_blank" href="https://fr.wikinews.org/w/index.php?search={{ search }}">
+									Wikinews
+								</a>
+								<a target="_blank" href="https://fr.wikinews.org/w/index.php?search={{ search }}" class="secondary-content">
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+							</li>
+							<li class="collection-item">
+								<a target="_blank" href="https://fr.wikiversity.org/w/index.php?search={{ search }}">
+									Wikiversité
+								</a>
+								<a target="_blank" href="https://fr.wikiversity.org/w/index.php?search={{ search }}" class="secondary-content">
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+							</li>
+							<li class="collection-item">
+								<a target="_blank" href="https://www.wikidata.org/w/index.php?search={{ search }}">
+									Wikidata
+								</a>
+								<a target="_blank" href="#" class="secondary-content dropdown-button" data-activates='drop-wikidata'>
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+								<div class="secondary-content tooltipped" data-position="left" data-delay="50" data-tooltip="Site Anglophone">
+									<i class="mdi-action-language"></i>
+								</div>
+							</li>
+						</ul>
+					</div>
+					</br>
+					<div class="valign-wrapper" style="align: center;">
+						<ul class="collection with-header valign" style="width: 100%">
+							<li class="collection-header"><h4>Wikis de jeux-vidéos<h4></li>
+							<li class="collection-item">
+								<a target="_blank" href="http://minecraft-fr.gamepedia.com/index.php?search={{ search }}">
+									Minecraft
+								</a>
+								<a target="_blank" href="http://minecraft-fr.gamepedia.com/index.php?search={{ search }}" class="secondary-content">
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+							</li>
+							<li class="collection-item">
+								<a target="_blank" href="http://fr.gta.wikia.com/wiki/Sp%C3%A9cial:Recherche?search={{ search }}">
+									Grand Theft Auto 5
+								</a>
+								<a target="_blank" href="http://fr.gta.wikia.com/wiki/Sp%C3%A9cial:Recherche?search={{ search }}" class="secondary-content">
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+							</li>
+							<li class="collection-item">
+								<a target="_blank" href="http://fr.sims.wikia.com/wiki/Sp%C3%A9cial:Recherche?search={{ search }}">
+									Les Sims 4
+								</a>
+								<a target="_blank" href="http://fr.sims.wikia.com/wiki/Sp%C3%A9cial:Recherche?search={{ search }}" class="secondary-content">
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+							</li>
+						</ul>
+					</div>
+			</div>
+			<div id="shop" class="container">
+					<div class="valign-wrapper" style="align: center;">
+						<ul class="collection with-header valign" style="width: 100%">
+							<li class="collection-header"><h4>Sites de e-commerce<h4></li>
+							<li class="collection-item">
+								<a target="_blank" href="http://www.amazon.fr/s/field-keywords={{ search }}">
+									Amazon
+								</a>
+								<a target="_blank" href="http://www.amazon.fr/s/field-keywords={{ search }}" class="secondary-content">
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+							</li>
+							<li class="collection-item">
+								<a target="_blank" href="http://www.cdiscount.com/search/10/{{ search }}.html">
+									CDiscount
+								</a>
+								<a target="_blank" href="http://www.cdiscount.com/search/10/{{ search }}.html" class="secondary-content">
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+							</li>
+							<li class="collection-item">
+								<a target="_blank" href="http://recherche.fnac.com/SearchResult/ResultList.aspx?Search={{ search }}">
+									Fnac
+								</a>
+								<a target="_blank" href="http://recherche.fnac.com/SearchResult/ResultList.aspx?Search={{ search }}" class="secondary-content">
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+							</li>
+							<li class="collection-item">
+								<a target="_blank" href="http://www.ebay.fr/sch/i.html?_nkw={{ search }}">
+									Ebay
+								</a>
+								<a target="_blank" href="http://www.ebay.fr/sch/i.html?_nkw={{ search }}" class="secondary-content">
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+								<div class="secondary-content tooltipped" data-position="left" data-delay="50" data-tooltip="Enchères en ligne">
+									<i class="mdi-editor-attach-money"></i>
+								</div>
+							</li>
+							<li class="collection-item">
+								<a target="_blank" href="http://www.priceminister.com/s/{{ search }}">
+									PriceMinister
+								</a>
+								<a target="_blank" href="http://www.priceminister.com/s/{{ search }}" class="secondary-content">
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+							</li>
+							<li class="collection-item">
+								<a target="_blank" href="http://search.rueducommerce.fr/search?s={{ search }}">
+									Rue du Commerce
+								</a>
+								<a target="_blank" href="http://search.rueducommerce.fr/search?s={{ search }}" class="secondary-content">
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+							</li>
+							<li class="collection-item">
+								<p>
+									Section basée sur un classement de médiamétrie pour FEVAD, tenant uniquement compte des sites dont les profits proviennent essentiellement d'internet.
+								</p>
+							</li>
+						</ul>
+					</div>
+					</br>
+					<div class="valign-wrapper" style="align: center;">
+						<ul class="collection with-header valign" style="width: 100%">
+							<li class="collection-header"><h4>Sites de petites annonces<h4></li>
+							<li class="collection-item">
+								<a target="_blank" href="http://www.leboncoin.fr/annonces/offres/?q={{ search }}">
+									Leboncoin
+								</a>
+								<a target="_blank" href="http://www.leboncoin.fr/annonces/offres/?q={{ search }}" class="secondary-content">
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+							</li>
+							<li class="collection-item">
+								<a target="_blank" href="http://www.mondebarras.fr/recherche?api=v7&article={{ search }}">
+									Mon-débarras
+								</a>
+								<a target="_blank" href="http://www.mondebarras.fr/recherche?api=v7&article={{ search }}" class="secondary-content">
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+							</li>
+							<li class="collection-item">
+								<p>
+									Cette section est presque vide, contactez-nous pour ajouter un (votre ?) site-web à We-Start.
+								</p>
+							</li>
+						</ul>
+					</div>
+			</div>
+			<div id="autre" class="container">
+					<div class="valign-wrapper" style="align: center;">
+						<ul class="collection with-header valign" style="width: 100%">
+							<li class="collection-header"><h4>Annuaires de sites web<h4></li>
+							<li class="collection-item">
+								<a target="_blank" href="http://www.dmoz.org/search?q={{ search }}">
+									Open Directory Project
+								</a>
+								<a target="_blank" href="#" class="secondary-content dropdown-button" data-activates='drop-dmoz'>
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+								<div class="secondary-content tooltipped" data-position="left" data-delay="50" data-tooltip="Site Anglophone">
+									<i class="mdi-action-language"></i>
+								</div>
+							</li>
+							<li class="collection-item">
+								<a target="_blank" href="http://www.aboutus.org/Special:GoogSearch?&q={{ search }}">
+									AboutUs
+								</a>
+								<a target="_blank" href="#" class="secondary-content dropdown-button" data-activates='drop-aboutus'>
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+								<div class="secondary-content tooltipped" data-position="left" data-delay="50" data-tooltip="Site Anglophone">
+									<i class="mdi-action-language"></i>
+								</div>
+							</li>
+							<li class="collection-item">
+								<p>
+									Cette section est presque vide, contactez-nous pour ajouter un (votre ?) site-web à We-Start.
+								</p>
+							</li>
+						</ul>
+					</div>
+					</br>
+					<div class="valign-wrapper" style="align: center;">
+						<ul class="collection with-header valign" style="width: 100%">
+							<li class="collection-header"><h4>Annuaires téléphoniques<h4></li>
+							<li class="collection-item">
+								<a target="_blank" href="http://www.118218.fr/recherche?what={{ search }}">
+									118 218 Professionnel
+								</a>
+								<a target="_blank" href="http://www.118218.fr/recherche?what={{ search }}" class="secondary-content">
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+							</li>
+							<li class="collection-item">
+								<a target="_blank" href="http://www.118218.fr/recherche?who={{ search }}">
+									118 218 Particulier
+								</a>
+								<a target="_blank" href="http://www.118218.fr/recherche?who={{ search }}" class="secondary-content">
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+							</li>
+							<li class="collection-item">
+								<a target="_blank" href="http://www.annu.com/?q={{ search }}">
+									Annu
+								</a>
+								<a target="_blank" href="http://www.annu.com/?q={{ search }}" class="secondary-content">
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+								<div class="secondary-content tooltipped" data-position="left" data-delay="50" data-tooltip="Annuaire Inversé">
+									<i class="mdi-action-swap-vert"></i>
+								</div>
+							</li>
+						</ul>
+					</div>
+					</br>
+					<div class="valign-wrapper" style="align: center;">
+						<ul class="collection with-header valign" style="width: 100%">
+							<li class="collection-header"><h4>Moteurs de recherches d'emplois<h4></li>
+							<li class="collection-item">
+								<a target="_blank" href="http://www.indeed.fr/emplois?q={{ search }}">
+									Indeed
+								</a>
+								<a target="_blank" href="http://www.indeed.fr/emplois?q={{ search }}" class="secondary-content">
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+							</li>
+							<li class="collection-item">
+								<a target="_blank" href="https://www.beepjob.com/{{ search }}/emploi.html">
+									BeepJob
+								</a>
+								<a target="_blank" href="https://www.beepjob.com/{{ search }}/emploi.html" class="secondary-content">
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+							</li>
+							<li class="collection-item">
+								<a target="_blank" href="http://www.meteojob.com/candidate/offers/candidateOffersSearchResults.mj?q={{ search }}">
+									MétéoJob
+								</a>
+								<a target="_blank" href="http://www.meteojob.com/candidate/offers/candidateOffersSearchResults.mj?q={{ search }}" class="secondary-content">
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+							</li>
+							<li class="collection-item">
+								<a target="_blank" href="http://www.leboncoin.fr/offres_d_emploi/offres/occasions/?q={{ search }}">
+									Leboncoin Emplois
+								</a>
+								<a target="_blank" href="http://www.leboncoin.fr/offres_d_emploi/offres/occasions/?q={{ search }}" class="secondary-content">
+									<i class="mdi-hardware-keyboard-arrow-right"></i>
+								</a>
+							</li>
+							<li class="collection-item">
+								<p>
+									Cette section est presque vide, contactez-nous pour ajouter un (votre ?) site-web à We-Start.
+								</p>
+							</li>
+						</ul>
+					</div>
+			</div>
+			<script>
+				$.getJSON("http://api.mymemory.translated.net/get?langpair=fr|en",
+					{
+						q: '{{ search }}'
+					},
+					function(data) {
+						$('#lang-en-yandex-img').attr('href', 'https://www.yandex.com/images/search?text='+data.responseData.translatedText);
+						$('#lang-en-yandex-vid').attr('href', 'https://www.yandex.com/video/search?text='+data.responseData.translatedText);
+						$('#lang-en-iconfinder').attr('href', 'https://www.iconfinder.com/search/?q='+data.responseData.translatedText);
+						$('#lang-en-wikidata').attr('href', 'https://www.wikidata.org/w/index.php?search='+data.responseData.translatedText);
+						$('#lang-en-dmoz').attr('href', 'http://www.dmoz.org/search?q='+data.responseData.translatedText);
+						$('#lang-en-aboutus').attr('href', 'http://www.aboutus.org/Special:GoogSearch?&q='+data.responseData.translatedText);
+						$('#en-search').append(data.responseData.translatedText);
+					}
+				);	
+				$.getJSON("http://api.mymemory.translated.net/get?langpair=fr|ru",
+					{
+						q: '{{ search }}'
+					},
+					function(data) {
+						$('#lang-ru-yandex-img').attr('href', 'https://www.yandex.ru/images/search?text='+data.responseData.translatedText);
+						$('#lang-ru-yandex-vid').attr('href', 'https://www.yandex.ru/video/search?text='+data.responseData.translatedText);
+					}
+				);
+				$.getJSON("http://api.mymemory.translated.net/get?langpair=fr|es",
+					{
+						q: '{{ search }}'
+					},
+					function(data) {
+						$('#es-search').append(data.responseData.translatedText);
+					}
+				);
+				$.getJSON("http://api.mymemory.translated.net/get?langpair=fr|it",
+					{
+						q: '{{ search }}'
+					},
+					function(data) {
+						$('#it-search').append(data.responseData.translatedText);
+					}
+				);
+			</script>
+			<ul id='drop-yandex-img' class='dropdown-content'>
+				<li><a href="https://www.yandex.com/search/?text={{ search }}">Accéder</a></li>
+				<li class="divider"></li>
+				<li><a id="lang-en-yandex-img" href="https://www.yandex.com/images/search?text={{ search }}">Anglais</a></li>
+				<li><a id="lang-ru-yandex-img" href="https://www.yandex.ru/images/search?text={{ search }}">Russe</a></li>
+			</ul>
+			<ul id='drop-yandex-vid' class='dropdown-content'>
+				<li><a href="http://www.yandex.com/video/search?text={{ search }}">Accéder</a></li>
+				<li class="divider"></li>
+				<li><a id="lang-en-yandex-vid" href="http://www.yandex.com/video/search?text={{ search }}">Anglais</a></li>
+				<li><a id="lang-ru-yandex-vid" href="http://www.yandex.ru/video/search?text={{ search }}">Russe</a></li>
+			</ul>
+			<ul id='drop-iconfinder' class='dropdown-content'>
+				<li><a href="https://www.iconfinder.com/search/?q={{ search }}">Accéder</a></li>
+				<li class="divider"></li>
+				<li><a id="lang-en-iconfinder" href="https://www.iconfinder.com/search/?q={{ search }}">Anglais</a></li>
+			</ul>
+			<ul id='drop-wikidata' class='dropdown-content'>
+				<li><a href="https://www.wikidata.org/w/index.php?search={{ search }}">Accéder</a></li>
+				<li class="divider"></li>
+				<li><a id="lang-en-wikidata" href="https://www.wikidata.org/w/index.php?search={{ search }}">Anglais</a></li>
+			</ul>
+			<ul id='drop-dmoz' class='dropdown-content'>
+				<li><a href="http://www.dmoz.org/search?q={{ search }}">Accéder</a></li>
+				<li class="divider"></li>
+				<li><a id="lang-en-dmoz" href="http://www.dmoz.org/search?q={{ search }}">Anglais</a></li>
+			</ul>
+			<ul id='drop-aboutus' class='dropdown-content'>
+				<li><a href="http://www.aboutus.org/Special:GoogSearch?&q={{ search }}">Accéder</a></li>
+				<li class="divider"></li>
+				<li><a id="lang-en-aboutus" href="http://www.aboutus.org/Special:GoogSearch?&q={{ search }}">Anglais</a></li>
+			</ul>
+		</div>

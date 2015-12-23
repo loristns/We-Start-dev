@@ -1,0 +1,319 @@
+<html>
+	<head>
+		<title>We-Start</title>
+		<meta charset="UTF-8">
+		<link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='materialize/css/materialize.min.css') }}"  media="screen,projection"/>
+		<link rel="stylesheet" href="{{ url_for('static', filename='animate.css') }}">
+		<link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.ico') }}" />
+		<!--[if IE]><link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}" /><![endif]-->
+		<style>
+			body {
+				background-color: whitesmoke
+			}
+			.tabs {
+				background-color: #0091ea;
+			}
+			.tabs li.tab {
+				background-color: #0091ea;
+			}
+			.tabs li.tab a {
+				color: #e6ee9c;
+			}
+			.tabs li.tab a:hover {
+				color: #eeff41;
+			}
+			.tabs .indicator {
+				background-color: #cddc39;
+			}
+			.iframe-responsive-wrapper {
+				position: relative;
+			}
+			.iframe-responsive-wrapper .iframe-ratio {
+				display: block;
+				width: 100%;
+				height: auto;
+			}
+			.iframe-responsive-wrapper iframe {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+			}
+		</style>
+	</head>
+	<body>
+		<script src="{{ url_for('static', filename='jquery-2.1.4.min.js') }}"></script>
+		<script type="text/javascript" src="{{ url_for('static', filename='materialize/js/materialize.min.js') }}"></script>
+		<div class="fixed-action-btn" style="bottom: 45px; right: 24px; z-index: 5;">
+			<a  href="https://github.com/the-new-sky/We-Start-dev/issues" class="btn-floating btn-large waves-effect waves-light red">
+				<i class="large mdi-action-bug-report"></i>
+			</a>
+		</div>
+        <ul id="side-world" class="side-nav">
+            <li class="center-align">
+                <img style="height: 100px" src="{{ url_for('static', filename='images/little-logo.png') }}"/>
+                <p class="flow-text">Bienvenue {{ pseudo }}</p>
+            </li>
+            <li>
+                <a href="/setting" class="flow-text">Vos paramètres</a>
+            </li>
+            <li>
+                <a onclick="$('#widget').openModal();" class="flow-text">Ajouter un widget</a>
+            </li>
+            <li>
+                <a onclick="$('#sm-widget').openModal();" class="flow-text">Ajouter un widget intelligent</a>
+            </li>
+            <li class="center-align">
+                <p class="flow-text">Dernières recherches</p>
+            </li>
+            {% for valuelist in story %}
+                <li>
+                    <a class="flow-text" href="/search?q={{ valuelist }}"> {{ valuelist }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+        <div id="widget" class="modal">
+            <form class="widget_form" action="/widget/add-widget" method="POST">
+                <div class="modal-content">
+                    <h3>Ajouter un widget</h3>
+                    <p class="flow-text">Vous pouvez créer un Widget en indiquant un titre et son adresse URL, le site web
+                        sera alors épinglé à votre page d'accueil. Nous vous recommandons d'utiliser de préférence,
+                        des sites responsives ou en version mobile.</p>
+                    <div class="input-field">
+                        <i class="mdi-av-subtitles prefix"></i>
+                        <input id="send1" name="title" type="text" class="validate"/>
+                            <label for="send1">Entrez le titre de votre Widget</label>
+                    </div>
+                    <div class="input-field">
+                        <i class="mdi-social-public prefix"></i>
+                        <input id="adress1" name="link" type="url" class="validate">
+                            <label for="adress1">Entrez l'URL de votre Widget</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class=" modal-action modal-close waves-effect waves-green btn-flat" type="submit">Ajouter</button>
+                </div>
+            </form>
+        </div>
+        <script>
+            $('.widget_form').submit(function() {
+                if ($.trim($("#send1").val()) === "" || $.trim($("#adress1").val()) === "") {
+                    alert('Vous devez remplir entièrement le formulaire');
+                    return false;
+                }
+            });
+        </script>
+        <div id="sm-widget" class="modal">
+            <form class="sm-widget_form" action="/widget/add-sm-widget" method="POST">
+                <div class="modal-content">
+                    <h3>Ajouter un widget intelligent</h3>
+                    <p class="flow-text">Mieux qu'un Widget, avec un Widget intelligent, l'interface du site s'adapte
+                        automatiquement pour vous afficher l'essentiel. Seuls certains sites sont supportés,
+                        vérifiez que votre site web est compatible <a href="https://noembed.com/#supported-sites">ici</a>.</p>
+                    <div class="input-field">
+                        <i class="mdi-av-subtitles prefix"></i>
+                        <input id="send" name="title" type="text" class="validate"/>
+                            <label for="send">Entrez le titre de votre Widget</label>
+                    </div>
+                    <div class="input-field">
+                        <i class="mdi-social-public prefix"></i>
+                        <input id="adress" name="link" type="url" class="validate">
+                            <label for="adress">Entrez l'URL de votre Widget</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class=" modal-action modal-close waves-effect waves-green btn-flat" type="submit">Ajouter</button>
+                </div>
+            </form>
+        </div>
+        <script>
+            $('.sm-widget_form').submit(function() {
+                if ($.trim($("#send").val()) === "" || $.trim($("#adress").val()) === "") {
+                    alert('Vous devez remplir entièrement le formulaire');
+                    return false;
+                }
+            });
+        </script>
+        <div class="section grey lighten-4" id="section-nav">
+            <br/>
+            <div class="row center-align">
+                <div class="col m3 s4 offset-s4">
+                    <a href="#" data-activates="side-world" class="button-collapse">
+                        <i class="mdi-navigation-menu black-text medium"></i>
+                    </a>
+                </div>
+                <div class="col l1 m3 s4 offset-s4">
+                    <center>
+                        <a href="/">
+                            <img height="75%" width="75%" class="responsive-img" style="border-radius: 10px;"
+                                 src="{{ url_for('static', filename='images/little-logo.png') }}"/>
+                        </a>
+                    </center>
+                </div>
+                <div class="col l8 m6 s12 row container">
+                    <form class="input-field" action="/search" id="search-form" method="GET">
+                        <div class="col l4 s12">
+                            <input id="icon_prefix" name="q" type="text" list="suggestions" class="validate" value="{{ search }}"/>
+                                <label for="icon_prefix">Rechercher un site web, une personne ...</label>
+                                <datalist id="suggestions">
+                                    {% for valuelist in story %}
+                                        <option value="{{ valuelist }}">
+                                    {% endfor %}
+                                </datalist>
+                        </div>
+                        <div class="col l2 s6">
+                            <button class="btn-floating waves-effect blue waves-light" type="submit">
+                                <i class="mdi-action-search"></i>
+                            </button>
+                        </div>
+                        <div class="col l2 s6">
+                            <a class="waves-effect waves-light red btn-floating button-collapse" data-activates="search-side">
+                                <i class="mdi-content-add"></i>
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <ul id="search-side" class="side-nav">
+            <li>
+                <a onclick="$('#search-form').attr('action', 'https://www.google.fr/search').submit();">Google</a>
+            </li>
+            <li>
+                <a onclick="$('#search-form').attr('action', 'https://www.bing.com/search').submit();">Bing</a>
+            </li>
+            <li>
+                <a onclick="$('#search-form').attr('action', 'https://fr.search.yahoo.com/search').submit();">Yahoo!</a>
+            </li>
+            <li>
+                <a onclick="$('#search-form').attr('action', 'https://duckduckgo.com').submit();">DuckDuckGo</a>
+            </li>
+            <li>
+                <a onclick="$('#search-form').attr('action', 'https://www.qwant.com').submit();">Qwant</a>
+            </li>
+            <li>
+                <a onclick="$('#search-form').attr('action', 'https://classic.ixquick.com/do/metasearch.pl').submit();">IxQuick</a>
+            </li>
+            <li>
+                <a onclick="$('#search-form').attr('action', 'https://www.exalead.com/search/web/results/').submit();">Exalead</a>
+            </li>
+        </ul>
+        <script>
+            $('.button-collapse').sideNav({
+                menuWidth: 300,
+                edge: 'right'
+            });
+        </script>
+	<div class="row">
+		<div id="sharecode" class="modal modal-fixed-footer">
+			<div class="modal-content">
+				<h4>Code de duplication du compte</h4>
+				<p>Ce code est un code de duplication, il contient toute les informations de votre compte, ne le partagez pas à une personne tierce.</br>Il vous permet de retrouver toutes vos données sur un autre appareil ou de sauvegarder ses données avant l'échéance de votre compte, il suffit juste de s'identifier avec ce code sur un autre appareil : </br></br><center><input Onclick="this.select();" value="{{ copie_code }}" readonly></input></center></p>
+			</div>
+			<div class="modal-footer">
+				<a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">OK</a>
+			</div>
+		</div>
+		<div id="del_account" class="modal">
+			<div class="modal-content">
+				<h4>Supprimer le compte ?</h4>
+				<p>Voulez-vous supprimer votre compte ? Vous allez perdre toutes vos données de façon définitive.</p>
+			</div>
+			<div class="modal-footer">
+				<a href="#!" class=" modal-action modal-close waves-effect waves-green btn-flat">Refuser</a><a href="/reset_account" class=" modal-action waves-effect waves-green btn-flat">Accepter</a>
+			</div>
+		</div>
+			<div class="col s12 l4">
+				<div class="card">
+					<div class="card-content">
+						<div class="card-title black-text">Vos données</div>
+						<ul class="collection">
+							<li class="collection-item avatar">
+								<i class="mdi-social-person circle red"></i>
+								<span class="title">Pseudonyme</span>
+								<p>La clé de toute vos données :</br>{{ pseudo }}</p>
+							</li>
+							<li class="collection-item avatar">
+								<i class="mdi-action-today circle blue"></i>
+								<span class="title">Date de création</span>
+								<p>La date de création du compte :</br>{{ date }}</p>
+							</li>
+							<li class="collection-item avatar">
+								<i class="mdi-action-schedule circle green"></i>
+								<span class="title">Date d'expiration</span>
+								<p>La date d'expiration du compte :</br>{{ date_expiration }}</p>
+							</li>
+							<li class="collection-item avatar">
+								<i class="mdi-device-now-widgets circle yellow"></i>
+								<span class="title">Liste de Widgets</span>
+								<p>La liste de vos Widgets</p><span class="badge">Affichable sur la page d'accueil uniquement.</span>
+							</li>
+							<li class="collection-item avatar">
+								<i class="mdi-action-history circle orange"></i>
+								<span class="title">Historique de recherche</span>
+								</br>
+								<a href="setting/clear_story">Supprimer l'historique de recherche</a>
+								</br>
+								<span class="badge">N'est sauvegardé qu'à des fins pratiques.</span>
+							</li>
+						</ul>
+					</div>
+					<div class="card-action"><a Onclick="$('#del_account').openModal();">Supprimer les données</a><a Onclick="$('#sharecode').openModal();">Obtenir un code de copie</a></div>
+				</div>
+			</div>
+			<div class="col s12 l4">
+				<div class="card">
+					<div class="card-content">
+						<div class="card-title black-text">Version de We-Start</div>
+						<p>We-Start Mercurius - We-Start 2.5 (Search Update) </br></br> Changelog : </br>
+						- Nouveau design </br>
+						- Nouveaux Easter-egg pour les principaux fans de We-Start </br>
+						</br>Version précédente : We-Start Mercurius - We-Start 2.0 </br></br> Changelog : </br>
+						- Nouveau design </br>
+						- Ajout des Widget, Widget Actu et des Smart Widget </br>
+						- Passage de 33 à 58 moteurs de recherches </br>
+						- Amélioration de l'ergonomie </br>
+						- Nouvelle license </br>
+						- Nouvelle recherche intelligente (Speed Search) </br>
+						- Nouveau moteur de traduction </br>
+						- APIs Speed Search coté client </br>
+						- Liens directs en utilisant Searx </br>
+						- Intégration de PushBullet </br>
+						- Système de compte en une session </br>
+						- Affichage Responsive pour Ordinateur, mobile et tablette </br>
+						- Export de compte via "code de copie" </br>
+					
+						</p>
+					</div>
+				</div>
+			</div>
+			<div class="col s12 l4">
+				<div class="card">
+					<div class="card-content">
+						<div class="card-title black-text">PushBullet</div>
+						<p>Utilisez la commande <i>$note</i> dans le champs de recherche pour partager votre recherche sur tout vos apareils utilisant l'appli PushBullet.</p></br>
+						<center>
+							<a class="waves-effect waves-light btn-flat green white-text" href="https://www.pushbullet.com/authorize?client_id=XdJIlIYJrYHYFA8jVHQ138KYL0mR0wi2&redirect_uri=http://ws.the-new-sky.fr/push/logging&response_type=token">Se connecter à PushBullet</a>
+						</center>
+					</div>
+				</div>
+				<div class="card">
+					<div class="card-content">
+						<div class="card-title black-text">Widget Actu</div>
+						<p>Choisissez le flux RSS à afficher sur votre page d'accueil. Supporte Atom 1.0, RSS 2.0 et antérieur.</p>
+							<form action="/widget/news-widget" method="GET">
+								<div class="input-field">
+									<input id="rss" type="url" name="rss"  value="{{ rssfeed }}" class="validate">
+										<label for="rss">Choisissez un flux RSS</label>
+								</div>
+								<center>
+									<button class="btn-flat red waves-effect waves-light white-text" type="submit" name="action">Changer de flux
+										<i class="mdi-content-send right"></i>
+							</button>
+						</center>
+					</form>
+					</div>
+				</div>
+			</div>
+	</div>
